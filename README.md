@@ -2,7 +2,7 @@
 
 A modern, feature-rich chat interface powered by the Akash Supercloud, offering zero-cost access to advanced language models.
 
-![Akash Chat WebUI](https://images.unsplash.com/photo-1587560699334-cc4ff634909a?q=80&w=1470&auto=format&fit=crop)
+![Akash Chat WebUI](https://github.com/user-attachments/assets/8e37f05c-64eb-4926-8c24-0c199317fdc0)
 
 ## Features
 
