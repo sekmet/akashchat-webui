@@ -26,7 +26,7 @@ A modern, feature-rich chat interface powered by the Akash Supercloud, offering 
     - CSV files
     - Plain text files
   - Automatic file content extraction and analysis
-  - File size limit: 10MB
+  - File size limit: 5MB
 
 ### User Experience
 - 🎨 Modern UI/UX
