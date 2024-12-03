@@ -4,6 +4,9 @@ A modern, feature-rich chat interface powered by the Akash Supercloud, offering 
 
 ![Akash Chat WebUI](https://github.com/user-attachments/assets/2676fc96-746f-4f9b-8cbd-2157a1382586)
 
+## Video Demo
+https://www.youtube.com/watch?v=_I_9FxwJImQ
+
 ## Features
 
 ### Core Functionality
