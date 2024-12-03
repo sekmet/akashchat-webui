@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Bot, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
+import AiThinking from '../components/AiThinking';
 import SetupWizard from '../components/SetupWizard';
+import { getRandomSuggestions } from '../utils/suggestions';
 import { createChatCompletion } from '../utils/api';
 import { searchWeb } from '../utils/webSearch';
 import { parseFile } from '../utils/fileUpload';
@@ -12,31 +14,14 @@ import type { Message, Chat } from '../types';
 import ChatInput from '../components/ChatInput';
 import SuggestionCard from '../components/SuggestionCard';
 
-const suggestions = [
-  {
-    title: 'Help me study',
-    description: 'Help me create a study plan for vocabulary in a college entrance exam'
-  },
-  {
-    title: 'Give me ideas',
-    description: 'What are some creative ways to display and preserve my kids\' artwork?'
-  },
-  {
-    title: 'Overcome procrastination',
-    description: 'I need practical strategies to overcome procrastination and improve productivity'
-  },
-  {
-    title: 'Tell me a fun fact',
-    description: 'Share an interesting fact about daily life in the Roman Empire'
-  }
-];
-
 export default function Chat() {
   const { settings, chats, currentChat, updateChat, addChat } = useStore();
   const [isLoading, setIsLoading] = useState(false);
   const [showSetupWizard, setShowSetupWizard] = useState(!settings.apiKey);
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
+  const [displayedSuggestions, setDisplayedSuggestions] = useState(getRandomSuggestions());
   const navigate = useNavigate();
+  const [isSendingPrompt, setIsSendingPrompt] = useState(false);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const [fileIcon, setFileIcon] = React.useState<JSX.Element>(<FileText size={16} />);
   const currentMessages = chats.find(chat => chat.id === currentChat)?.messages || [];
@@ -56,16 +41,52 @@ export default function Chat() {
     }
   }, [currentChat, navigate]);
 
-  const handleSuggestionClick = async (suggestion: typeof suggestions[0]) => {
-    const newChat: Chat = {
-      id: crypto.randomUUID(),
-      title: suggestion.title,
-      messages: [],
-      createdAt: new Date()
-    };
+  const handleSuggestionClick = async (suggestion: typeof displayedSuggestions[0]) => {
+    if (isSendingPrompt) return;
+    setIsSendingPrompt(true);
+    setIsLoading(true);
     
-    addChat(newChat);
-    await handleSendMessage(suggestion.description);
+    try {
+      const chatId = crypto.randomUUID();
+      const newMessage: Message = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content: suggestion.description,
+        timestamp: new Date()
+      };
+    
+      // Create chat with initial message
+      addChat({
+        id: chatId,
+        title: suggestion.title,
+        messages: [newMessage],
+        createdAt: new Date()
+      });
+
+      // Get AI response
+      const systemMessage: Message = {
+        id: crypto.randomUUID(),
+        role: 'system',
+        content: settings.systemPrompt,
+        timestamp: new Date()
+      };
+
+      const response = await createChatCompletion([systemMessage, newMessage]);
+      
+      const assistantMessage: Message = {
+        id: crypto.randomUUID(),
+        role: response.role,
+        content: response.content,
+        timestamp: new Date()
+      };
+
+      updateChat(chatId, { messages: [newMessage, assistantMessage] });
+    } catch (error) {
+      console.error('Failed to process suggestion:', error);
+    } finally {
+      setIsSendingPrompt(false);
+      setIsLoading(false);
+    }
   };
 
   const handleWebSearch = async (query: string) => {
@@ -230,7 +251,7 @@ export default function Chat() {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full ml-[256px]">
+    <div className="flex-1 flex flex-col h-full">
       {showSetupWizard && <SetupWizard />}
       <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 mt-[60px]">
         {currentMessages.length === 0 && (
@@ -251,8 +272,8 @@ export default function Chat() {
               <h2 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-4 flex items-center">
                 <span className="mr-2">✨</span> Suggested
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {suggestions.map((suggestion, index) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {displayedSuggestions.map((suggestion, index) => (
                   <SuggestionCard
                     key={index}
                     title={suggestion.title}
@@ -276,7 +297,7 @@ export default function Chat() {
               className={`max-w-[80%] rounded-lg p-4 ${
                 message.role === 'user'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 prose dark:prose-invert'
+                  : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 prose dark:prose-invert max-w-full sm:max-w-[80%]'
               }`}
             >
               {message.role === 'user' ? (
@@ -297,9 +318,7 @@ export default function Chat() {
         <div ref={messagesEndRef} />
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-              {webSearchEnabled ? 'Searching the web...' : 'Thinking...'}
-            </div>
+            <AiThinking message={webSearchEnabled ? 'Searching web' : 'Generating'} />
           </div>
         )}
       </div>

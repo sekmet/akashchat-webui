@@ -3,6 +3,8 @@ export interface Settings {
   apiKey: string;
   apiUrl: string;
   model: string;
+  temperature: number;
+  maxTokens: number;
   tavilyApiKey: string;
   uploadthingToken: string;
   theme: 'light' | 'dark';

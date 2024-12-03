@@ -18,6 +18,8 @@ export default function Settings() {
     apiKey: settings.apiKey || '',
     apiUrl: settings.apiUrl || '',
     model: settings.model || '',
+    temperature: settings.temperature || 0.7,
+    maxTokens: settings.maxTokens || 1000,
     tavilyApiKey: settings.tavilyApiKey || '',
     uploadthingToken: settings.uploadthingToken || '',
     theme: settings.theme || 'light'
@@ -27,6 +29,14 @@ export default function Settings() {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
+    }));
+  };
+
+  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.type === 'range' ? parseFloat(e.target.value) : parseInt(e.target.value);
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: value
     }));
   };
 
@@ -40,7 +50,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="p-4 sm:p-8 mx-auto w-full mt-[67px] ml-[275px] max-w-5xl overflow-y-auto">
+    <div className="p-4 sm:p-8 mx-auto w-full mt-[67px] lg:ml-0 sm:ml-64 max-w-5xl overflow-y-auto">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">Settings</h1>
       
       <div className="space-y-6">
@@ -63,6 +73,48 @@ export default function Settings() {
           onChange={(model) => setFormData(prev => ({ ...prev, model }))}
           options={models}
         />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+              Temperature ({formData.temperature})
+            </label>
+            <div className="flex items-center space-x-4">
+              <input
+                type="range"
+                name="temperature"
+                min="0"
+                max="1"
+                step="0.1"
+                value={formData.temperature}
+                onChange={handleNumberChange}
+                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Controls randomness: Lower values are more focused, higher values more creative
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+              Max Tokens
+            </label>
+            <input
+              type="number"
+              name="maxTokens"
+              min="100"
+              max="4000"
+              step="100"
+              value={formData.maxTokens}
+              onChange={handleNumberChange}
+              className="w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg p-3 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+            />
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Maximum length of the response (100-4000)
+            </p>
+          </div>
+        </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">

@@ -11,6 +11,8 @@ import { useStore } from './store/useStore';
 
 function App() {
   const { settings: { theme } } = useStore();
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   React.useEffect(() => {
     if (theme === 'dark') {
@@ -22,14 +24,14 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen flex bg-white dark:bg-[#1a1a1a] transition-colors duration-200 overflow-hidden max-w-[100vw]">
+      <div className="min-h-screen flex bg-white dark:bg-[#1a1a1a] transition-colors duration-200 overflow-hidden max-w-[100vw] relative">
         <Routes>
           <Route path="/" element={
             <>
               <SignedIn>
-                <Sidebar />
+                <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
                 <div className="flex-1 flex flex-col h-screen min-w-0">
-                  <Header />
+                  <Header onMenuClick={toggleSidebar} />
                   <Chat />
                 </div>
               </SignedIn>
@@ -41,9 +43,9 @@ function App() {
           <Route path="/settings" element={
             <>
               <SignedIn>
-                <Sidebar />
+                <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
                 <div className="flex-1 flex flex-col h-screen min-w-0">
-                  <Header />
+                  <Header onMenuClick={toggleSidebar} />
                   <Settings />
                 </div>
               </SignedIn>
@@ -55,9 +57,9 @@ function App() {
           <Route path="/profile" element={
             <>
               <SignedIn>
-                <Sidebar />
+                <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
                 <div className="flex-1 flex flex-col h-screen min-w-0">
-                  <Header />
+                  <Header onMenuClick={toggleSidebar} />
                   <Profile />
                 </div>
               </SignedIn>

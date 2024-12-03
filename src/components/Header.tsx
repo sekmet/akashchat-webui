@@ -1,20 +1,30 @@
 import React from 'react';
-import { Settings as SettingsIcon, LogIn } from 'lucide-react';
+import { Settings as SettingsIcon, LogIn, Menu } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 import { useNotificationStore } from '../store/useNotificationStore';
 import ModelSelector from './ModelSelector';
 import ThemeToggle from './ThemeToggle';
 
-export default function Header() {
+interface HeaderProps {
+  onMenuClick?: () => void;
+}
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const { notification } = useNotificationStore();
 
   return (
-    <div className="fixed min-h-[60px] ml-[256px] w-full bg-white dark:bg-[#1a1a1a]">
+    <div className="fixed min-h-[60px] w-full bg-white dark:bg-[#1a1a1a] z-10">
       <div className="flex items-center justify-between p-4 w-full border-b border-gray-200 dark:border-gray-800 transition-colors duration-200">
         <div className="flex items-center space-x-4">
+          <button
+            onClick={onMenuClick}
+            className="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <Menu size={24} className="text-gray-500 dark:text-gray-400" />
+          </button>
           <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Akash Chat</h1>
-          <ModelSelector />
+          <ModelSelector className="hidden md:block" />
 
           <SignedOut>
             <SignInButton mode="modal">
@@ -27,8 +37,8 @@ export default function Header() {
           <SignedIn>
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
-          
-          <Link to="/settings">
+
+          <Link to="/settings" className="sm:block">
             <SettingsIcon size={20} className="text-gray-500 dark:text-gray-400" />
           </Link>
           <ThemeToggle />

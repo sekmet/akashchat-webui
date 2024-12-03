@@ -10,7 +10,11 @@ const models = [
   'nvidia-Llama-3-1-Nemotron-70B-Instruct-HF'
 ];
 
-export default function ModelSelector() {
+interface ModelSelectorProps {
+  className?: string;
+}
+
+export default function ModelSelector({ className = '' }: ModelSelectorProps) {
   const { settings, setSettings } = useStore();
   const [isOpen, setIsOpen] = React.useState(false);
   const { showNotification, hideNotification } = useNotificationStore();
@@ -26,7 +30,7 @@ export default function ModelSelector() {
   };
 
   return (
-    <div className="relative">
+    <div className={`relative ${className}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-2 px-3 py-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors text-sm"

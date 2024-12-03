@@ -1,11 +1,16 @@
 import React from 'react';
-import { MessageSquarePlus, Search, MessageSquare, Home, Trash2 } from 'lucide-react';
+import { MessageSquarePlus, Search, MessageSquare, Home, Trash2, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useUser, SignedIn } from '@clerk/clerk-react';
 import { useStore } from '../store/useStore';
 import { useDebounce } from '../hooks/useDebounce';
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const location = useLocation();
   const { addChat, chats, currentChat, setCurrentChat, deleteChat, setSearchQuery, getFilteredChats } = useStore();
   const { user } = useUser();
@@ -25,6 +30,7 @@ export default function Sidebar() {
       ...newChat,
       title: `Chat ${chats.length + 1}`
     });
+    onClose();
   };
 
   React.useEffect(() => {
@@ -32,12 +38,35 @@ export default function Sidebar() {
   }, [debouncedSearch, setSearchQuery]);
 
   return (
-    <div className="w-64 min-w-[256px] max-w-[256px] h-screen overflow-auto bg-gray-50 dark:bg-[#1a1a1a] border-r border-gray-200 dark:border-gray-800 flex flex-col transition-colors duration-200 fixed z-10">
-      <div className="space-y-4 p-4">
+    <div className={`
+      fixed inset-y-0 left-0 z-30 w-64 h-screen transform 
+      ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      lg:translate-x-0 lg:static
+      bg-white dark:bg-[#1a1a1a] border-r border-gray-200 dark:border-gray-800
+      transition-all duration-200 ease-in-out
+      flex flex-col
+    `}
+    >
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 lg:hidden -z-10 transition-colors duration-200"
+          onClick={onClose}
+        />
+      )}
+      <button
+        onClick={onClose}
+        className="lg:hidden absolute right-4 top-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+      >
+        <X size={20} className="text-gray-500 dark:text-gray-400" />
+      </button>
+      <div className="flex-none space-y-4 p-4">
         <Link
           to="/"
-          onClick={() => setCurrentChat(null)}
-          className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-900 dark:text-white transition-colors"
+          onClick={() => {
+            setCurrentChat(null);
+            onClose();
+          }}
+          className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-white transition-colors"
         >
           <Home size={20} />
           <span>Home</span>
@@ -45,7 +74,7 @@ export default function Sidebar() {
 
         <button
           onClick={handleNewChat}
-          className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-900 dark:text-white transition-colors"
+          className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-white transition-colors"
         >
           <MessageSquarePlus size={20} />
           <span>New Chat</span>
@@ -62,11 +91,12 @@ export default function Sidebar() {
           />
         </div>
       </div>
-      <div className="flex-1 mt-4 overflow-y-auto px-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 min-h-0">
+      <div className="flex-1 mt-4 overflow-y-auto px-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
         {filteredChats.map((chat) => (
           <div
             key={chat.id}
-            className="group relative"
+            className="group relative transition-colors duration-200"
+            onClick={onClose}
           >
             <Link
               to="/"
@@ -81,8 +111,12 @@ export default function Sidebar() {
               <span className="truncate flex-1">{chat.title}</span>
             </Link>
             <button
-              onClick={() => deleteChat(chat.id)}
               className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-200"
+              onClick={(e) => {
+                e.stopPropagation();
+                deleteChat(chat.id);
+                onClose();
+              }}
             >
               <Trash2 size={16} className="text-gray-500 dark:text-gray-400" />
             </button>
@@ -91,9 +125,10 @@ export default function Sidebar() {
       </div>
 
       <SignedIn>
-        <div className="p-4 mt-auto border-t border-gray-200 dark:border-gray-800">
+        <div className="flex-none p-4 border-t border-gray-200 dark:border-gray-800">
           <Link
             to="/profile"
+            onClick={onClose}
             className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
           >
             <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm transition-colors duration-200">

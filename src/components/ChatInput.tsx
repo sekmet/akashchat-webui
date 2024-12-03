@@ -15,16 +15,32 @@ interface ChatInputProps {
 export default function ChatInput({ onSend, onWebSearch, webSearchEnabled = false, onWebSearchToggle, onFileUpload }: ChatInputProps) {
   const [message, setMessage] = React.useState('');
   const { settings: { tavilyApiKey, uploadthingToken } } = useStore();
+  const [hasPendingFile, setHasPendingFile] = React.useState(false);
 
   const handleMessageSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim()) {
-      if (webSearchEnabled) {
+      // If there's a pending file, always use normal send
+      if (hasPendingFile) {
+        onSend(message);
+        setHasPendingFile(false);
+      } else if (webSearchEnabled && !hasPendingFile) {
         onWebSearch(message);
       } else {
         onSend(message);
       }
       setMessage('');
+    }
+  };
+
+  const handleFileUpload = (message: Message) => {
+    if (onFileUpload) {
+      onFileUpload(message);
+      setHasPendingFile(true);
+      // Disable web search if it was enabled
+      if (webSearchEnabled && onWebSearchToggle) {
+        onWebSearchToggle();
+      }
     }
   };
 
@@ -34,12 +50,14 @@ export default function ChatInput({ onSend, onWebSearch, webSearchEnabled = fals
         type="text"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder={webSearchEnabled ? "Search the web..." : "Send a message"}
+        placeholder={hasPendingFile ? "Ask about the uploaded file..." : webSearchEnabled ? "Search the web..." : "Send a message"}
         className="w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-2xl pl-4 pr-24 py-4 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
       />
       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-        {uploadthingToken && <FileUploadButton onUpload={onFileUpload} />}
-        {tavilyApiKey && (
+        {uploadthingToken && !hasPendingFile && !webSearchEnabled && (
+          <FileUploadButton onUpload={handleFileUpload} />
+        )}
+        {tavilyApiKey && !hasPendingFile && (
           <button 
             type="button"
             onClick={onWebSearchToggle}
@@ -52,12 +70,6 @@ export default function ChatInput({ onSend, onWebSearch, webSearchEnabled = fals
             <Globe size={20} />
           </button>
         )}
-        {/*<button 
-          type="button"
-          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-        >
-          <Mic size={20} className="text-gray-500 dark:text-gray-400" />
-        </button>*/}
         <button 
           type="submit" 
           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"

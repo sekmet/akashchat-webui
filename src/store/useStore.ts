@@ -21,6 +21,8 @@ const defaultSettings: Settings = {
   systemPrompt: "You are a helpful AI assistant.",
   apiKey: "",
   apiUrl: "https://api.openai.com/v1/chat/completions",
+  temperature: 0.7,
+  maxTokens: 1000,
   tavilyApiKey: "",
   uploadthingToken: "",
   model: "Meta-Llama-3-1-8B-Instruct-FP8",
