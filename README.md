@@ -11,7 +11,7 @@ https://www.youtube.com/watch?v=_I_9FxwJImQ
 
 ### Core Functionality
 - 🤖 Advanced Language Model Integration
-  - Multiple model options including Meta-Llama-3 variants
+  - Multiple model options including Meta-Llama v3.3 70B
   - Customizable system prompts
   - Real-time chat interactions
 

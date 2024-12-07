@@ -4,6 +4,7 @@ import { useNotificationStore } from '../store/useNotificationStore';
 import Select from '../components/Select';
 
 const models = [
+  'Meta-Llama-3-3-70B-Instruct',
   'Meta-Llama-3-1-8B-Instruct-FP8',
   'Meta-Llama-3-1-405B-Instruct-FP8',
   'Meta-Llama-3-2-3B-Instruct',

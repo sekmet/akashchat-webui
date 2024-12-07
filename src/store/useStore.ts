@@ -25,7 +25,7 @@ const defaultSettings: Settings = {
   maxTokens: 1000,
   tavilyApiKey: "",
   uploadthingToken: "",
-  model: "Meta-Llama-3-1-8B-Instruct-FP8",
+  model: "Meta-Llama-3-3-70B-Instruct",
   theme: 'dark'
 };
 

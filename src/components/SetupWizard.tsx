@@ -27,7 +27,7 @@ export default function SetupWizard() {
   const [formData, setFormData] = React.useState({
     apiKey: '',
     apiUrl: 'https://chatapi.akash.network/api/v1/chat/completions',
-    model: 'Meta-Llama-3-1-8B-Instruct-FP8',
+    model: 'Meta-Llama-3-3-70B-Instruct',
     systemPrompt: 'You are a helpful AI assistant.'
   });
 
